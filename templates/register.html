@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<div class="auth-wrap" style="align-items:flex-start;padding-top:3rem">
+  <div style="width:100%;max-width:560px">
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div class="auth-logo">🎓</div>
+      <div class="auth-title">Student Registration</div>
+      <p style="color:var(--gray-500);font-size:.88rem;margin-top:.3rem">Create your placement portal account</p>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <form method="POST" action="{{ url_for('register') }}">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input class="form-control" type="text" name="name" required placeholder="Arun Kumar"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Department</label>
+              <select class="form-control" name="department" required>
+                <option value="">Select dept.</option>
+                {% for d in ['CSE','IT','ECE','EEE','AIML','MECH','CIVIL'] %}
+                <option value="{{ d }}">{{ d }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">CGPA</label>
+              <input class="form-control" type="number" name="cgpa" step="0.01"
+                     min="0" max="10" required placeholder="8.50"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone Number</label>
+              <input class="form-control" type="tel" name="phone" required
+                     placeholder="9876543210" maxlength="15"/>
+              <span class="form-hint">This is your login password.</span>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Email Address</label>
+              <input class="form-control" type="email" name="email" required placeholder="you@gmail.com"/>
+            </div>
+            {% if skills %}
+            <div class="form-group full">
+              <label class="form-label">Your Skills</label>
+              <div class="skills-grid">
+                {% for s in skills %}
+                <label class="skill-check">
+                  <input type="checkbox" name="skills" value="{{ s.skill_id }}"/>
+                  {{ s.skill_name }}
+                </label>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+          </div>
+          <div class="form-footer">
+            <a href="{{ url_for('login') }}" class="btn btn-ghost">Back to Login</a>
+            <button type="submit" class="btn btn-primary">Create Account →</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

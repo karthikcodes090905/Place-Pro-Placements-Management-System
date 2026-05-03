@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Post a Job{% endblock %}
+{% block content %}
+<div style="min-height:calc(100vh - 64px);display:flex;align-items:center;
+            justify-content:center;padding:2rem 1rem">
+  <div style="width:100%;max-width:560px">
+    <div class="breadcrumb" style="margin-bottom:1rem">
+      <a href="{{ url_for('recruiter_dashboard') }}">Dashboard</a>
+      <span>›</span> Post Job
+    </div>
+    <div class="card">
+      <div class="card-header"><h2>Post a New Job Opening</h2></div>
+      <div class="card-body">
+        <form method="POST" action="{{ url_for('add_job') }}">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label class="form-label">Job Role / Title</label>
+              <input class="form-control" type="text" name="role"
+                     required placeholder="e.g. Software Developer"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Package (₹ per annum)</label>
+              <input class="form-control" type="number" name="package"
+                     required placeholder="700000"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Minimum CGPA</label>
+              <input class="form-control" type="number" name="eligibility_cgpa"
+                     step="0.1" min="0" max="10" required placeholder="7.5"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Job Type</label>
+              <select class="form-control" name="job_type" required>
+                <option value="">Select type</option>
+                <option value="Full-Time">Full-Time</option>
+                <option value="Internship">Internship</option>
+                <option value="Contract">Contract</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Application Deadline</label>
+              <input class="form-control" type="date" name="deadline" required/>
+            </div>
+            {% if skills %}
+            <div class="form-group full">
+              <label class="form-label">Required Skills</label>
+              <div class="skills-grid">
+                {% for s in skills %}
+                <label class="skill-check">
+                  <input type="checkbox" name="skills" value="{{ s.skill_id }}"/>
+                  {{ s.skill_name }}
+                </label>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+          </div>
+          <div class="form-footer">
+            <a href="{{ url_for('recruiter_dashboard') }}" class="btn btn-ghost">Cancel</a>
+            <button type="submit" class="btn btn-primary">Post Job →</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

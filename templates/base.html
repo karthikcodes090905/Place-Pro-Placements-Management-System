@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>{% block title %}PlacePro{% endblock %} — Placement Portal</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+<nav class="navbar">
+  <a href="{{ url_for('index') }}" class="nav-brand">
+    <span class="dot"></span> PlacePro
+  </a>
+  <ul class="nav-links">
+    {% if session.get('role') == 'student' %}
+      <span class="nav-role">Student</span>
+      <li><a href="{{ url_for('student_dashboard') }}"
+             class="{% if request.endpoint=='student_dashboard' %}active{% endif %}">Dashboard</a></li>
+      <li><a href="{{ url_for('logout') }}" style="color:#f87171">Logout</a></li>
+    {% elif session.get('role') == 'recruiter' %}
+      <span class="nav-role">Recruiter · {{ session.get('company_name') }}</span>
+      <li><a href="{{ url_for('recruiter_dashboard') }}"
+             class="{% if request.endpoint=='recruiter_dashboard' %}active{% endif %}">Dashboard</a></li>
+      <li><a href="{{ url_for('add_job') }}"
+             class="{% if request.endpoint=='add_job' %}active{% endif %}">Post Job</a></li>
+      <li><a href="{{ url_for('logout') }}" style="color:#f87171">Logout</a></li>
+    {% elif session.get('role') == 'admin' %}
+      <span class="nav-role">Admin</span>
+      <li><a href="{{ url_for('admin_dashboard') }}"
+             class="{% if request.endpoint=='admin_dashboard' %}active{% endif %}">Dashboard</a></li>
+      <li><a href="{{ url_for('admin_students') }}"
+             class="{% if request.endpoint=='admin_students' %}active{% endif %}">Students</a></li>
+      <li><a href="{{ url_for('admin_jobs') }}"
+             class="{% if request.endpoint=='admin_jobs' %}active{% endif %}">Jobs</a></li>
+      <li><a href="{{ url_for('admin_applications') }}"
+             class="{% if request.endpoint=='admin_applications' %}active{% endif %}">Applications</a></li>
+      <li><a href="{{ url_for('logout') }}" style="color:#f87171">Logout</a></li>
+    {% else %}
+      <li><a href="{{ url_for('login') }}" class="btn btn-primary btn-sm">Login</a></li>
+    {% endif %}
+  </ul>
+</nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div style="max-width:1200px;margin:1rem auto;padding:0 1.5rem">
+    <ul class="flash-list">
+      {% for cat,msg in messages %}
+      <li class="flash-item flash-{{ cat }}">
+        {% if cat=='error' %}⚠️{% else %}✅{% endif %} {{ msg }}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

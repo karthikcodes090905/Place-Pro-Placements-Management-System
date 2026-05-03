@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}All Applications{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="page-header">
+    <div class="breadcrumb"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a> › Applications</div>
+    <h1>All Applications</h1>
+    <p>{{ applications|length }} total applications in the system.</p>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Student</th><th>Dept</th><th>CGPA</th>
+              <th>Role</th><th>Company</th><th>Package</th><th>Date</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          {% for a in applications %}
+          <tr>
+            <td class="mono">#{{ a.application_id }}</td>
+            <td><strong>{{ a.student_name }}</strong></td>
+            <td class="small-text">{{ a.department }}</td>
+            <td class="mono">{{ a.cgpa }}</td>
+            <td>{{ a.role }}</td>
+            <td>{{ a.company_name }}</td>
+            <td class="mono">₹{{ '{:,.0f}'.format(a.package) }}</td>
+            <td class="small-text">{{ a.application_date }}</td>
+            <td>
+              {% set s = a.status|lower %}
+              {% if 'select' in s %}<span class="badge badge-selected">{{ a.status }}</span>
+              {% elif 'reject' in s %}<span class="badge badge-rejected">{{ a.status }}</span>
+              {% elif 'hold' in s %}<span class="badge badge-hold">{{ a.status }}</span>
+              {% elif 'short' in s %}<span class="badge badge-shortlisted">{{ a.status }}</span>
+              {% else %}<span class="badge badge-applied">{{ a.status }}</span>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

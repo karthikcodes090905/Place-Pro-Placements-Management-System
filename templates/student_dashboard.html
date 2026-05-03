@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+{% block title %}My Dashboard{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-tag">✦ Student Portal</div>
+    <h1>Hello, {{ session.get('name') }} 👋</h1>
+    <p>
+      {{ session.get('dept') }} &nbsp;·&nbsp;
+      <span style="color:var(--amber);font-family:'Space Mono',monospace;font-weight:700">
+        CGPA {{ session.get('cgpa') }}
+      </span>
+    </p>
+    {% if my_skills %}
+    <div style="margin-top:1rem;display:flex;flex-wrap:wrap;gap:.4rem">
+      {% for sk in my_skills %}
+      <span class="skill-pill has">✓ {{ sk.skill_name }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon amber">📋</div>
+      <div class="stat-body">
+        <div class="stat-value">{{ total_applied }}</div>
+        <div class="stat-label">Jobs Applied</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green">✅</div>
+      <div class="stat-body">
+        <div class="stat-value">{{ total_selected }}</div>
+        <div class="stat-label">Selected</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon navy">💼</div>
+      <div class="stat-body">
+        <div class="stat-value">{{ available_jobs|length }}</div>
+        <div class="stat-label">Available Jobs</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Available jobs (skill-matched) -->
+  <div class="card" style="margin-bottom:1.5rem">
+    <div class="card-header">
+      <div>
+        <div class="section-label">Skill-Matched & CGPA Eligible</div>
+        <h2>Available Jobs</h2>
+      </div>
+    </div>
+    <form method="GET" action="{{ url_for('student_dashboard') }}" class="filter-bar">
+      <div class="form-group">
+        <label>Search Role</label>
+        <input class="form-control" type="text" name="q" value="{{ filters.get('q','') }}"
+               placeholder="Software Engineer"/>
+      </div>
+      <div class="form-group">
+        <label>Company</label>
+        <select class="form-control" name="company">
+          <option value="">All Companies</option>
+          {% for name in company_options %}
+          <option value="{{ name }}" {% if filters.get('company')==name %}selected{% endif %}>{{ name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Job Type</label>
+        <select class="form-control" name="type">
+          <option value="">All Types</option>
+          {% for jt in job_type_options %}
+          <option value="{{ jt }}" {% if filters.get('type')==jt %}selected{% endif %}>{{ jt }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Min Package</label>
+        <input class="form-control" type="number" name="min_package"
+               value="{{ filters.get('min_package','') }}" placeholder="600000"/>
+      </div>
+      <div class="form-group">
+        <label>Sort By</label>
+        <select class="form-control" name="sort">
+          <option value="deadline" {% if filters.get('sort')=='deadline' %}selected{% endif %}>Deadline</option>
+          <option value="package" {% if filters.get('sort')=='package' %}selected{% endif %}>Package</option>
+          <option value="match" {% if filters.get('sort')=='match' %}selected{% endif %}>Skill Match</option>
+        </select>
+      </div>
+      <div class="filter-actions">
+        <button type="submit" class="btn btn-navy btn-sm">Apply Filters</button>
+        <a href="{{ url_for('student_dashboard') }}" class="btn btn-ghost btn-sm">Clear</a>
+      </div>
+    </form>
+    {% if available_jobs %}
+    <div style="padding:1.2rem">
+      <div class="jobs-grid">
+        {% for j in available_jobs %}
+        {% set pct = ((j.matched_skills / j.required_skills * 100) | int) if j.required_skills > 0 else 100 %}
+        <div class="job-card">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div>
+                <div class="job-card-title">{{ j.role }}</div>
+                <div class="job-card-company">{{ j.company_name }}</div>
+              </div>
+              <span class="badge-type">{{ j.job_type }}</span>
+            </div>
+          </div>
+          <div class="job-card-meta">
+            <span>💰 <strong>₹{{ '{:,.0f}'.format(j.package) }}</strong> p.a.</span>
+            <span>📅 Deadline: <strong>{{ j.deadline }}</strong></span>
+            <span>📊 Min CGPA: <strong>{{ j.eligibility_cgpa }}</strong></span>
+            <span>🎯 Placement score: <strong>{{ j.placement_score }}%</strong></span>
+          </div>
+          {% if j.required_skills > 0 %}
+          <div>
+            <div class="match-label">Skill match: {{ j.matched_skills }}/{{ j.required_skills }}</div>
+            <div class="match-bar-wrap">
+              <div class="match-bar" style="width:{{ pct }}%"></div>
+            </div>
+            {% if j.missing_skills %}
+            <div class="skill-gap">Missing: {{ j.missing_skills | join(', ') }}</div>
+            {% endif %}
+          </div>
+          {% endif %}
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+            <form method="POST" action="{{ url_for('student_apply', job_id=j.job_id) }}" style="flex:1">
+              <input type="hidden" name="application_date" value="{{ today }}"/>
+              <button type="submit" class="btn btn-primary btn-sm btn-block">Quick Apply →</button>
+            </form>
+            <a href="{{ url_for('student_apply', job_id=j.job_id) }}"
+               class="btn btn-ghost btn-sm" style="flex:1;justify-content:center">Details</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="big">🎉</div>
+      <p>You've applied to all eligible jobs, or no new openings match your profile.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- My applications -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="section-label">History</div>
+        <h2>My Applications</h2>
+      </div>
+    </div>
+    <div class="table-wrap">
+      {% if my_apps %}
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Role</th><th>Company</th>
+            <th>Package</th><th>Type</th><th>Date</th><th>Status</th><th>Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in my_apps %}
+          <tr>
+            <td class="mono">#{{ a.application_id }}</td>
+            <td><strong>{{ a.role }}</strong></td>
+            <td>{{ a.company_name }}</td>
+            <td class="mono">{% if a.package %}₹{{ '{:,.0f}'.format(a.package) }}{% else %}—{% endif %}</td>
+            <td><span class="badge-type">{{ a.job_type }}</span></td>
+            <td class="small-text">{{ a.application_date }}</td>
+            <td>
+              {% set s = a.status|lower %}
+              {% if 'select' in s %}<span class="badge badge-selected">{{ a.status }}</span>
+              {% elif 'reject' in s %}<span class="badge badge-rejected">{{ a.status }}</span>
+              {% elif 'hold' in s %}<span class="badge badge-hold">{{ a.status }}</span>
+              {% elif 'short' in s %}<span class="badge badge-shortlisted">{{ a.status }}</span>
+              {% else %}<span class="badge badge-applied">{{ a.status }}</span>{% endif %}
+            </td>
+            <td>
+              {% if a.result_status %}
+                {% if a.result_status == 'Selected' %}
+                  <span class="badge badge-selected">🎉 Selected</span>
+                  {% if a.offered_package %}
+                  <div class="mono" style="margin-top:.2rem;font-size:.78rem">
+                    ₹{{ '{:,.0f}'.format(a.offered_package) }}
+                  </div>
+                  {% endif %}
+                {% elif a.result_status == 'Rejected' %}
+                  <span class="badge badge-rejected">Rejected</span>
+                {% else %}
+                  <span class="badge badge-hold">{{ a.result_status }}</span>
+                {% endif %}
+              {% else %}<span class="small-text">Pending</span>{% endif %}
+            </td>
+            <td>
+              <a href="{{ url_for('student_messages', app_id=a.application_id) }}"
+                 class="btn btn-ghost btn-sm msg-btn">
+                Message
+                {% if a.unread_count and a.unread_count > 0 %}
+                <span class="msg-badge">{{ a.unread_count }}</span>
+                {% endif %}
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">
+        <div class="big">📭</div>
+        <p>No applications yet. Browse available jobs above!</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

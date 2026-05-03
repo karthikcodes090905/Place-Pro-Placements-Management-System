@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Recruiter Dashboard{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+
+  <div class="hero">
+    <div class="hero-tag">✦ Recruiter Portal</div>
+    <h1>{{ session.get('company_name') }}</h1>
+    <p>Manage your job postings and review applicants.</p>
+    <div class="hero-actions">
+      <a href="{{ url_for('add_job') }}" class="btn btn-primary">＋ Post New Job</a>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon amber">💼</div>
+      <div class="stat-body">
+        <div class="stat-value">{{ total_jobs }}</div>
+        <div class="stat-label">Active Jobs</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon navy">👥</div>
+      <div class="stat-body">
+        <div class="stat-value">{{ total_applicants }}</div>
+        <div class="stat-label">Total Applicants</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Your Job Postings</h2>
+      <a href="{{ url_for('add_job') }}" class="btn btn-primary btn-sm">＋ Post Job</a>
+    </div>
+    <div class="table-wrap">
+      {% if jobs %}
+      <table>
+        <thead>
+          <tr>
+            <th>Role</th><th>Package</th><th>Type</th>
+            <th>Min CGPA</th><th>Deadline</th><th>Applicants</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for j in jobs %}
+          <tr>
+            <td><strong>{{ j.role }}</strong></td>
+            <td class="mono">₹{{ '{:,.0f}'.format(j.package) }}</td>
+            <td><span class="badge-type">{{ j.job_type }}</span></td>
+            <td class="mono">{{ j.eligibility_cgpa }}</td>
+            <td class="small-text">{{ j.deadline }}</td>
+            <td>
+              <span style="font-weight:700;font-family:'Space Mono',monospace">
+                {{ j.applicant_count }}
+              </span>
+            </td>
+            <td>
+              <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+                <a href="{{ url_for('view_applicants', job_id=j.job_id) }}"
+                   class="btn btn-navy btn-sm">View Applicants</a>
+                <a href="{{ url_for('delete_job', job_id=j.job_id) }}"
+                   class="btn btn-danger btn-sm"
+                   onclick="return confirm('Delete this job and all its applications?')">Delete</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">
+        <div class="big">📋</div>
+        <p>No jobs posted yet. <a href="{{ url_for('add_job') }}" style="color:var(--amber)">Post your first job →</a></p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

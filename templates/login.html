@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-split">
+    <div class="auth-hero">
+      <div class="hero-kicker">Placement Suite</div>
+      <h1>PlacePro
+        <span class="hero-accent">Recruit · Apply · Select</span>
+      </h1>
+      <p>One portal to manage campus hiring with analytics, smart matching, and fast workflows.</p>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-num">12+</div>
+          <div class="stat-label">Companies Hiring</div>
+        </div>
+        <div>
+          <div class="stat-num">5k</div>
+          <div class="stat-label">Applications</div>
+        </div>
+        <div>
+          <div class="stat-num">92%</div>
+          <div class="stat-label">Success Rate</div>
+        </div>
+      </div>
+      <div class="hero-badges">
+        <span class="hero-pill">Encrypted Access</span>
+        <span class="hero-pill">Skill Match</span>
+        <span class="hero-pill">Live Status</span>
+      </div>
+    </div>
+
+    <div class="auth-card">
+      <div style="text-align:center;margin-bottom:1.8rem">
+        <div class="auth-logo">🎓</div>
+        <div class="auth-title">PlacePro Portal</div>
+        <p style="color:var(--gray-500);font-size:.88rem;margin-top:.3rem">Sign in to your account</p>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <form method="POST" action="{{ url_for('login') }}" id="loginForm">
+            <!-- Role tabs -->
+            <div class="role-tabs role-tabs-hero" style="margin-bottom:1.3rem">
+              <button type="button" class="role-tab active" onclick="setRole('student',this)">🎓 Student</button>
+              <button type="button" class="role-tab" onclick="setRole('recruiter',this)">🧑‍💼 Recruiter</button>
+              <button type="button" class="role-tab" onclick="setRole('admin',this)">🔐 Admin</button>
+            </div>
+            <input type="hidden" name="role" id="roleField" value="student"/>
+
+            <div class="form-group" style="margin-bottom:1rem">
+              <label class="form-label" id="emailLabel">Email Address</label>
+              <input class="form-control" type="email" name="email" required placeholder="you@example.com"/>
+            </div>
+            <div class="form-group" style="margin-bottom:1.4rem">
+              <label class="form-label" id="passLabel">Phone Number</label>
+              <input class="form-control" type="text" name="password" required
+                     placeholder="9876543210" id="passInput"/>
+              <span class="form-hint" id="passHint">Use your registered phone number as password.</span>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block btn-lg">Sign In →</button>
+          </form>
+
+          <hr class="divider"/>
+          <p style="text-align:center;font-size:.85rem;color:var(--gray-500)">
+            New student?
+            <a href="{{ url_for('register') }}" style="color:var(--amber);font-weight:600">Register here →</a>
+          </p>
+        </div>
+      </div>
+
+      <div class="info-box" style="margin-top:1rem">
+        <strong style="color:var(--amber-dk)">Quick Login Credentials</strong><br>
+        <strong>Student:</strong> arun@gmail.com / 9876543210<br>
+        <strong>Recruiter:</strong> rahul@google.com / 9000000001<br>
+        <strong>Admin:</strong> admin@placepro.com / admin123
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+function setRole(role, el) {
+  document.getElementById('roleField').value = role;
+  document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const hints = {
+    student:   ['Phone Number', 'Use your registered phone number.', 'tel'],
+    recruiter: ['Phone Number', 'Use your registered phone number.', 'tel'],
+    admin:     ['Password',     'Admin password.',                  'password']
+  };
+  const [label, hint, type] = hints[role];
+  document.getElementById('passLabel').textContent = label;
+  document.getElementById('passHint').textContent  = hint;
+  document.getElementById('passInput').type        = type;
+}
+</script>
+{% endblock %}

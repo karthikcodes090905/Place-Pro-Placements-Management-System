@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+  <div class="hero">
+    <div class="hero-tag">✦ Placement Management System</div>
+    <h1>Welcome to<br>PlacePro Portal</h1>
+    <p>Track job applications, manage student placements, and monitor recruitment
+       outcomes — all in one streamlined dashboard.</p>
+    <div class="hero-actions">
+      <a href="{{ url_for('apply') }}" class="btn btn-primary btn-lg">＋ Apply for a Job</a>
+      <a href="{{ url_for('view_applications') }}" class="btn btn-outline">View Applications →</a>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon amber">🎓</div>
+      <div class="stat-body">
+        <div class="stat-value">{{ total_students }}</div>
+        <div class="stat-label">Registered Students</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon navy">💼</div>
+      <div class="stat-body">
+        <div class="stat-value">{{ total_jobs }}</div>
+        <div class="stat-label">Open Positions</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon purple">📋</div>
+      <div class="stat-body">
+        <div class="stat-value">{{ total_applications }}</div>
+        <div class="stat-label">Total Applications</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green">✅</div>
+      <div class="stat-body">
+        <div class="stat-value">{{ total_selected }}</div>
+        <div class="stat-label">Students Selected</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="section-label">Activity Feed</div>
+        <h2>Recent Applications</h2>
+      </div>
+      <a href="{{ url_for('view_applications') }}" class="btn btn-ghost btn-sm">View All →</a>
+    </div>
+    <div class="table-wrap">
+      {% if recent %}
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Student</th>
+            <th>Role</th>
+            <th>Company</th>
+            <th>Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in recent %}
+          <tr>
+            <td><span style="font-family:'Space Mono',monospace;font-size:.8rem;color:var(--gray-500);">#{{ r.application_id }}</span></td>
+            <td class="name-cell"><strong>{{ r.student_name }}</strong></td>
+            <td>{{ r.role }}</td>
+            <td>{{ r.company_name }}</td>
+            <td><span class="small">{{ r.application_date }}</span></td>
+            <td>
+              {% set s = r.status | lower %}
+              {% if 'select' in s %}<span class="badge badge-selected">Selected</span>
+              {% elif 'reject' in s %}<span class="badge badge-rejected">Rejected</span>
+              {% elif 'hold' in s %}<span class="badge badge-hold">On Hold</span>
+              {% else %}<span class="badge badge-applied">{{ r.status }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">
+        <div class="big">📭</div>
+        <p>No applications yet. <a href="{{ url_for('apply') }}" style="color:var(--amber)">Be the first to apply →</a></p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

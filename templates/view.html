@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}All Applications{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a href="{{ url_for('dashboard') }}" style="color:var(--amber)">Dashboard</a>
+      <span>›</span> Applications
+    </div>
+    <h1>All Applications</h1>
+    <p>Browse, search and filter every placement application in the system.</p>
+  </div>
+
+  <div class="card">
+    <form method="GET" action="{{ url_for('view_applications') }}" class="filter-bar">
+      <div class="form-group">
+        <label>Status</label>
+        <select class="form-control" name="status" onchange="this.form.submit()">
+          <option value="">All Statuses</option>
+          {% for opt in ['Applied','Under Review','Shortlisted','On Hold','Selected','Rejected'] %}
+          <option value="{{ opt }}" {% if status_filter == opt %}selected{% endif %}>{{ opt }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Department</label>
+        <select class="form-control" name="department" onchange="this.form.submit()">
+          <option value="">All Departments</option>
+          {% for d in departments %}
+          <option value="{{ d }}" {% if dept_filter == d %}selected{% endif %}>{{ d }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% if status_filter or dept_filter %}
+      <div class="form-group" style="justify-content:flex-end;">
+        <a href="{{ url_for('view_applications') }}" class="btn btn-ghost btn-sm">✕ Clear</a>
+      </div>
+      {% endif %}
+      <div style="margin-left:auto;">
+        <a href="{{ url_for('apply') }}" class="btn btn-primary btn-sm">＋ New Application</a>
+      </div>
+    </form>
+
+    <div class="table-wrap">
+      {% if applications %}
+      <table>
+        <thead>
+          <tr>
+            <th>App ID</th>
+            <th>Student</th>
+            <th>Dept / CGPA</th>
+            <th>Role</th>
+            <th>Company</th>
+            <th>Package</th>
+            <th>Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in applications %}
+          <tr>
+            <td><span style="font-family:'Space Mono',monospace;font-size:.8rem;color:var(--gray-500);">#{{ a.application_id }}</span></td>
+            <td class="name-cell"><strong>{{ a.student_name }}</strong></td>
+            <td>
+              <span class="small">{{ a.department }}</span><br>
+              <span style="font-family:'Space Mono',monospace;font-size:.8rem;color:var(--navy);font-weight:700;">{{ a.cgpa }}</span>
+            </td>
+            <td>{{ a.role }}</td>
+            <td>{{ a.company_name }}</td>
+            <td>
+              {% if a.package %}
+              <span class="pkg">₹{{ '{:,.0f}'.format(a.package) }}</span>
+              {% else %}<span class="small">—</span>{% endif %}
+            </td>
+            <td><span class="small">{{ a.application_date }}</span></td>
+            <td>
+              {% set s = a.status | lower %}
+              {% if 'select' in s %}<span class="badge badge-selected">{{ a.status }}</span>
+              {% elif 'reject' in s %}<span class="badge badge-rejected">{{ a.status }}</span>
+              {% elif 'hold' in s %}<span class="badge badge-hold">{{ a.status }}</span>
+              {% else %}<span class="badge badge-applied">{{ a.status }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div style="padding:.9rem 1.1rem;background:var(--gray-100);border-top:1px solid var(--gray-300);
+                  font-size:.8rem;color:var(--gray-500);display:flex;justify-content:space-between;align-items:center;">
+        <span>Showing <strong style="color:var(--navy);">{{ applications | length }}</strong> record(s)</span>
+        {% if status_filter or dept_filter %}
+        <span>Filtered by:
+          {% if status_filter %}<strong>{{ status_filter }}</strong>{% endif %}
+          {% if dept_filter and status_filter %} &amp; {% endif %}
+          {% if dept_filter %}<strong>{{ dept_filter }}</strong>{% endif %}
+        </span>
+        {% endif %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="big">🔍</div>
+        <p>No applications match your filters.</p>
+        <a href="{{ url_for('view_applications') }}" class="btn btn-ghost btn-sm" style="margin-top:.9rem;">Clear Filters</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

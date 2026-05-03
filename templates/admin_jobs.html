@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}All Jobs{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="page-header">
+    <div class="breadcrumb"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a> › Jobs</div>
+    <h1>All Job Openings</h1>
+    <p>{{ jobs|length }} positions across all companies.</p>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Role</th><th>Company</th><th>Package</th>
+              <th>Type</th><th>Min CGPA</th><th>Deadline</th><th>Applicants</th></tr>
+        </thead>
+        <tbody>
+          {% for j in jobs %}
+          <tr>
+            <td class="mono">{{ j.job_id }}</td>
+            <td><strong>{{ j.role }}</strong></td>
+            <td>{{ j.company_name }}</td>
+            <td class="mono">₹{{ '{:,.0f}'.format(j.package) }}</td>
+            <td><span class="badge-type">{{ j.job_type }}</span></td>
+            <td class="mono">{{ j.eligibility_cgpa }}</td>
+            <td class="small-text">{{ j.deadline }}</td>
+            <td class="mono">{{ j.app_count }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

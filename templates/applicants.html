@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Applicants — {{ job.role }}{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a href="{{ url_for('recruiter_dashboard') }}">Dashboard</a>
+      <span>›</span> {{ job.role }} Applicants
+    </div>
+    <h1>{{ job.role }}</h1>
+    <p>{{ job.company_name }} · {{ applicants|length }} applicant(s)</p>
+  </div>
+
+  <div class="card">
+    <!-- Filter bar -->
+    <form method="GET" class="filter-bar">
+      <div class="form-group">
+        <label>Filter by Status</label>
+        <select class="form-control" name="status" onchange="this.form.submit()">
+          <option value="">All Statuses</option>
+          {% for opt in ['Applied','Under Review','Shortlisted','On Hold','Selected','Rejected'] %}
+          <option value="{{ opt }}" {% if status_filter==opt %}selected{% endif %}>{{ opt }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% if status_filter %}
+      <a href="{{ url_for('view_applicants', job_id=job_id) }}" class="btn btn-ghost btn-sm">✕ Clear</a>
+      {% endif %}
+    </form>
+
+    <div class="table-wrap">
+      {% if applicants %}
+      <table>
+        <thead>
+          <tr>
+            <th>Student</th><th>Dept</th><th>CGPA</th>
+            <th>Email</th><th>Date</th><th>Status</th><th>Result</th><th>Update</th><th>Chat</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in applicants %}
+          <tr>
+            <td><strong>{{ a.name }}</strong></td>
+            <td class="small-text">{{ a.department }}</td>
+            <td class="mono">{{ a.cgpa }}</td>
+            <td class="small-text">{{ a.email }}</td>
+            <td class="small-text">{{ a.application_date }}</td>
+            <td>
+              {% set s = a.status|lower %}
+              {% if 'select' in s %}<span class="badge badge-selected">{{ a.status }}</span>
+              {% elif 'reject' in s %}<span class="badge badge-rejected">{{ a.status }}</span>
+              {% elif 'hold' in s %}<span class="badge badge-hold">{{ a.status }}</span>
+              {% elif 'short' in s %}<span class="badge badge-shortlisted">{{ a.status }}</span>
+              {% else %}<span class="badge badge-applied">{{ a.status }}</span>{% endif %}
+            </td>
+            <td>
+              {% if a.result_status %}
+                {% if a.result_status=='Selected' %}
+                  <span class="badge badge-selected">🎉 {{ a.result_status }}</span>
+                {% elif a.result_status=='Rejected' %}
+                  <span class="badge badge-rejected">{{ a.result_status }}</span>
+                {% else %}
+                  <span class="badge badge-hold">{{ a.result_status }}</span>
+                {% endif %}
+              {% else %}<span class="small-text">—</span>{% endif %}
+            </td>
+            <td>
+              <form method="POST" action="{{ url_for('update_application', app_id=a.application_id) }}"
+                    style="display:flex;gap:.4rem;align-items:center">
+                <input type="hidden" name="job_id" value="{{ job_id }}"/>
+                <select class="form-control" name="status"
+                        style="padding:.35rem .6rem;font-size:.8rem;width:130px">
+                  {% for opt in ['Applied','Under Review','Shortlisted','On Hold','Selected','Rejected'] %}
+                  <option value="{{ opt }}" {% if a.status==opt %}selected{% endif %}>{{ opt }}</option>
+                  {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-navy btn-sm">Save</button>
+              </form>
+            </td>
+            <td>
+              <a href="{{ url_for('recruiter_messages', app_id=a.application_id) }}"
+                 class="btn btn-ghost btn-sm msg-btn">
+                Message
+                {% if a.unread_count and a.unread_count > 0 %}
+                <span class="msg-badge">{{ a.unread_count }}</span>
+                {% endif %}
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">
+        <div class="big">👥</div>
+        <p>No applicants yet for this position.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

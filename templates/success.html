@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Application Submitted{% endblock %}
+
+{% block content %}
+<div class="success-wrap" style="min-height:calc(100vh - 64px);">
+  <div style="width:100%;max-width:520px;padding:2rem 0;">
+    <div class="success-card">
+
+      <div class="success-icon">✅</div>
+      <div class="app-id-badge">APP #{{ app_id }}</div>
+      <h2>Application Submitted!</h2>
+      <p>The application has been recorded successfully in the placement database.</p>
+
+      <div class="detail-table">
+        <div class="detail-row">
+          <span class="detail-key">Student</span>
+          <span class="detail-val">{{ student }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">Role Applied</span>
+          <span class="detail-val">{{ role }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">Company</span>
+          <span class="detail-val">{{ company }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">Date</span>
+          <span class="detail-val">{{ app_date }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">Status</span>
+          <span class="detail-val">
+            {% set s = status | lower %}
+            {% if 'select' in s %}<span class="badge badge-selected">{{ status }}</span>
+            {% elif 'reject' in s %}<span class="badge badge-rejected">{{ status }}</span>
+            {% elif 'hold' in s %}<span class="badge badge-hold">{{ status }}</span>
+            {% else %}<span class="badge badge-applied">{{ status }}</span>
+            {% endif %}
+          </span>
+        </div>
+      </div>
+
+      <div class="success-actions">
+        <a href="{{ url_for('apply') }}" class="btn btn-primary">＋ New Application</a>
+        <a href="{{ url_for('view_applications') }}" class="btn btn-ghost">View All →</a>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:1.2rem;font-size:.8rem;color:var(--gray-500);">
+      <a href="{{ url_for('dashboard') }}" style="color:var(--amber);">← Back to Dashboard</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

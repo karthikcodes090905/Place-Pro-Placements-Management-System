@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Apply — {{ job.role }}{% endblock %}
+{% block content %}
+<div style="min-height:calc(100vh - 64px);display:flex;align-items:center;
+            justify-content:center;padding:2rem 1rem">
+  <div style="width:100%;max-width:540px">
+    <div class="breadcrumb" style="margin-bottom:1rem">
+      <a href="{{ url_for('student_dashboard') }}">Dashboard</a>
+      <span>›</span> Apply
+    </div>
+    <div class="card">
+      <!-- Job header -->
+      <div style="background:var(--navy);padding:1.4rem 1.5rem">
+        <div class="small-text" style="color:var(--gray-300);margin-bottom:.3rem">Applying for</div>
+        <div style="font-size:1.2rem;font-weight:700;color:var(--white)">{{ job.role }}</div>
+        <div style="color:var(--amber);font-size:.9rem;margin-top:.2rem">{{ job.company_name }}</div>
+        <div style="display:flex;gap:1.2rem;margin-top:.9rem;flex-wrap:wrap">
+          <span style="color:var(--gray-300);font-size:.82rem">
+            💰 ₹{{ '{:,.0f}'.format(job.package) }} p.a.
+          </span>
+          <span style="color:var(--gray-300);font-size:.82rem">📅 Deadline: {{ job.deadline }}</span>
+          <span class="badge-type">{{ job.job_type }}</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <!-- Applicant info -->
+        <div style="background:var(--gray-100);border-radius:8px;padding:1rem;margin-bottom:1.2rem">
+          <div class="section-label">Applicant</div>
+          <div style="font-weight:700;color:var(--navy);margin-top:.3rem">{{ session.get('name') }}</div>
+          <div style="color:var(--gray-500);font-size:.85rem">
+            {{ session.get('dept') }} · CGPA
+            <strong style="color:var(--navy)">{{ session.get('cgpa') }}</strong>
+          </div>
+        </div>
+
+        <!-- Skill match -->
+        {% if skill_match %}
+        <div style="margin-bottom:1.2rem">
+          <div class="section-label" style="margin-bottom:.5rem">Skill Match</div>
+          <div style="display:flex;flex-wrap:wrap;gap:.4rem">
+            {% for sk in skill_match %}
+            <span class="skill-pill {% if sk.has_skill %}has{% else %}missing{% endif %}">
+              {% if sk.has_skill %}✓{% else %}✗{% endif %} {{ sk.skill_name }}
+            </span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('student_apply', job_id=job.job_id) }}">
+          <div class="form-group" style="margin-bottom:1.3rem">
+            <label class="form-label">Application Date</label>
+            <input class="form-control" type="date" name="application_date"
+                   value="{{ today }}" required/>
+          </div>
+          <div style="display:flex;gap:.8rem">
+            <a href="{{ url_for('student_dashboard') }}" class="btn btn-ghost" style="flex:1;justify-content:center">
+              Cancel
+            </a>
+            <button type="submit" class="btn btn-primary" style="flex:2;justify-content:center">
+              ✅ Confirm & Apply
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

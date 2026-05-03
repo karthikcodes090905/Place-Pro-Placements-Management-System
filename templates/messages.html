@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Messages{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="page-header">
+    <div class="breadcrumb">
+      {% if role=='student' %}
+      <a href="{{ url_for('student_dashboard') }}">Dashboard</a>
+      {% else %}
+      <a href="{{ url_for('recruiter_dashboard') }}">Dashboard</a>
+      {% endif %}
+      <span>›</span> Messages
+    </div>
+    <h1>{{ thread.role }}</h1>
+    <p>{{ thread.company_name }}{% if thread.student_name %} · {{ thread.student_name }}{% endif %}</p>
+  </div>
+
+  <div class="chat-wrap">
+    <div class="chat-box">
+      {% if messages %}
+        {% for m in messages %}
+        <div class="msg {{ m.sender_role }}">
+          <div>
+            <div class="bubble">{{ m.message }}</div>
+            <div class="msg-meta">{{ m.sent_at }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="empty-state">
+        <div class="big">💬</div>
+        <p>No messages yet. Start the conversation.</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <form method="POST" class="chat-input">
+      <textarea class="form-control" name="message" placeholder="Type your message..."></textarea>
+      <button class="btn btn-primary btn-sm" type="submit">Send</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

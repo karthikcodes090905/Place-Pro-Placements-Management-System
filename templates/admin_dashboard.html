@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-tag">✦ Admin Panel</div>
+    <h1>Placement Analytics</h1>
+    <p>System-wide overview of students, jobs, and placement outcomes.</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon amber">🎓</div>
+      <div class="stat-body">
+        <div class="stat-value">{{ total_students or 0 }}</div>
+        <div class="stat-label">Students</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon navy">💼</div>
+      <div class="stat-body">
+        <div class="stat-value">{{ total_jobs or 0 }}</div>
+        <div class="stat-label">Job Openings</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon purple">📋</div>
+      <div class="stat-body">
+        <div class="stat-value">{{ total_apps or 0 }}</div>
+        <div class="stat-label">Applications</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon blue">🏢</div>
+      <div class="stat-body">
+        <div class="stat-value">{{ total_companies or 0 }}</div>
+        <div class="stat-label">Companies</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="two-col" style="margin-bottom:1.5rem">
+
+    <!-- Status Distribution -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="section-label">Analytics</div>
+          <h2>Application Status</h2>
+        </div>
+      </div>
+
+      <div class="card-body">
+        {% set max_cnt = (status_dist | map(attribute='cnt') | max) if status_dist else 1 %}
+
+        <div class="bar-chart">
+          {% for row in status_dist %}
+          <div class="bar-row">
+            <span class="bar-label">{{ row.status }}</span>
+
+            <div class="bar-track">
+              <div class="bar-fill"
+                   style="width:{{ ((row.cnt / max_cnt * 100) | int) if max_cnt > 0 else 0 }}%">
+              </div>
+            </div>
+
+            <span class="bar-val">{{ row.cnt }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Jobs -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="section-label">Analytics</div>
+          <h2>Top Jobs</h2>
+        </div>
+      </div>
+
+      <div class="card-body">
+        {% set max_app = (top_jobs | map(attribute='app_count') | max) if top_jobs else 1 %}
+
+        <div class="bar-chart">
+          {% for j in top_jobs %}
+          <div class="bar-row">
+            <span class="bar-label" title="{{ j.role }} — {{ j.company_name }}">
+              {{ j.role }}
+            </span>
+
+            <div class="bar-track">
+              <div class="bar-fill"
+                   style="width:{{ ((j.app_count / max_app * 100) | int) if max_app > 0 else 0 }}%">
+              </div>
+            </div>
+
+            <span class="bar-val">{{ j.app_count }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Monthly Trend -->
+  <div class="card" style="margin-bottom:1.5rem">
+    <div class="card-header">
+      <div>
+        <div class="section-label">Trend</div>
+        <h2>Applications by Month</h2>
+      </div>
+    </div>
+    <div class="card-body">
+      {% if monthly_apps %}
+      {% set max_month = (monthly_apps | map(attribute='cnt') | max) if monthly_apps else 1 %}
+      <div class="bar-chart">
+        {% for row in monthly_apps %}
+        <div class="bar-row">
+          <span class="bar-label">{{ row.ym }}</span>
+          <div class="bar-track">
+            <div class="bar-fill"
+                 style="width:{{ ((row.cnt / max_month * 100) | int) if max_month > 0 else 0 }}%">
+            </div>
+          </div>
+          <span class="bar-val">{{ row.cnt }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="big">📈</div>
+        <p>No monthly data available yet.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Tables Row -->
+  <div class="two-col">
+
+    <!-- Department Stats -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="section-label">Breakdown</div>
+          <h2>Department Stats</h2>
+        </div>
+        <a href="{{ url_for('admin_students') }}" class="btn btn-ghost btn-sm">
+          View All →
+        </a>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Department</th>
+              <th>Students</th>
+              <th>Applications</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for d in dept_stats %}
+            <tr>
+              <td><strong>{{ d.department }}</strong></td>
+              <td class="mono">{{ d.students }}</td>
+              <td class="mono">{{ d.applications }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Company Stats -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="section-label">Breakdown</div>
+          <h2>Company Stats</h2>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Jobs</th>
+              <th>Applicants</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for c in company_stats %}
+            <tr>
+              <td><strong>{{ c.company_name }}</strong></td>
+              <td class="mono">{{ c.jobs }}</td>
+              <td class="mono">{{ c.applicants }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
